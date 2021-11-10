@@ -28,7 +28,7 @@ class BaiduMap():
 
 			if 'weather' in jsonData: #存在天气预报的情况下
 				weatherData = json.loads(jsonData['weather'])
-				wx.CallAfter(pub.sendMessage, "updateText", content=weatherData['OriginQuery']+" PM2.5:"+weatherData['pm25']+weatherData['weather0']+"["+weatherData['temp0']+"]["+weatherData['wind0']+"]")
+				wx.CallAfter(pub.sendMessage, "updateText", content=weatherData['_update_time']+" PM2.5:"+weatherData['pm25']+weatherData['weather0']+"["+weatherData['temp0']+"]["+weatherData['wind0']+"]")
 			if 'cur_area_id' in jsonData:
 				wx.CallAfter(pub.sendMessage, "updateText", content="城市id:" + str(jsonData['cur_area_id'])+",小兵已待命!")
 				return jsonData['cur_area_id']
@@ -54,7 +54,7 @@ class BaiduMap():
 	def checkArr(self,checkArr,argv):
 		pass
 
-	def getMapData(self,cityId,info_): 
+	def getMapData(self,cityName,cityId,info_):
 
 		if cityId < 0 :
 			return -1
@@ -65,7 +65,7 @@ class BaiduMap():
 		allData   = []
 
 		qt        = "s"
-		rn        = "10" 
+		rn        = "10"
 		modNum    = "10"
 
 		while loopValue <= loopCount:
@@ -135,7 +135,7 @@ class BaiduMap():
 
 			wx.CallAfter(pub.sendMessage, "updateText", content="ok . writing file!!!")
 
-			self.createAndWrite(str(cityId) + "_" + re.sub(r"[\/\\\:\*\?\"\<\>\|\$$]","_",info_) + ".csv",rowHeader,allData)
+			self.createAndWrite(str(cityName) + "_" + re.sub(r"[\/\\\:\*\?\"\<\>\|\$$]","_",info_) + ".csv",rowHeader,allData)
 
 			wx.CallAfter(pub.sendMessage, "updateText", content="over")
 		else :
@@ -197,7 +197,7 @@ class webThread(threading.Thread):
 
 	def run(self):
 		obj = BaiduMap()
-		obj.getMapData(obj.getCityData(self.cityText),self.articleText)
+		obj.getMapData(self.cityText,obj.getCityData(self.cityText),self.articleText)
 
 	def __del__(self):
 		wx.CallAfter(pub.sendMessage, "setStBool", msg=False)
